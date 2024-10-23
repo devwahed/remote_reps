@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brand Products</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .search-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            padding: 10px;
+            width: 50%;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .brand-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .brand-title {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .product-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .product-item {
+            background-color: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .product-item img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        .product-item h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            color: #555;
+        }
+
+        .no-products {
+            background-color: #ffebe6;
+            color: #b33030;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>All Brands and Their Products</h1>
+
+    <!-- Search bar for filtering -->
+    <div class="search-container">
+        <input type="text" id="searchInput" class="search-input" placeholder="Search for brands, products, or ASIN...">
+    </div>
+
+    <!-- Brand and product list -->
+    <div class="brand-container" id="brandContainer">
+        {% for brand in brands %}
+        <div class="brand-section">
+            <div class="brand-title">{{ brand.name }}</div>
+            <ul class="product-list">
+                {% for product in brand.products.all %}
+                <li class="product-item">
+                    <img src="{{ product.image }}" alt="{{ product.name }}">
+                    <div>
+                        <h3>{{ product.name }}</h3>
+                        <p>ASIN: {{ product.asin }}</p>
+                    </div>
+                </li>
+                {% empty %}
+                <li class="no-products">No products found for {{ brand.name }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        // JavaScript for search functionality
+        document.getElementById('searchInput').addEventListener('input', function () {
+            const filter = this.value.toLowerCase();
+            const brandSections = document.querySelectorAll('.brand-section');
+
+            brandSections.forEach(brandSection => {
+                const brandTitle = brandSection.querySelector('.brand-title').textContent.toLowerCase();
+                const products = brandSection.querySelectorAll('.product-item');
+
+                let productFound = false;
+
+                products.forEach(product => {
+                    const productName = product.querySelector('h3').textContent.toLowerCase();
+                    const productASIN = product.querySelector('p').textContent.toLowerCase();  // ASIN value
+
+                    // Check if the product name, brand name, or ASIN matches the filter
+                    if (brandTitle.includes(filter) || productName.includes(filter) || productASIN.includes(filter)) {
+                        product.style.display = 'flex'; // Show matching product
+                        productFound = true;
+                    } else {
+                        product.style.display = 'none'; // Hide non-matching product
+                    }
+                });
+
+                // Show the brand section if any product matches, otherwise hide it
+                if (productFound || brandTitle.includes(filter)) {
+                    brandSection.style.display = 'block';
+                } else {
+                    brandSection.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
